@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <QVC_ConfigurableAutoPricing>
+            <version>0.1.0</version>
+        </QVC_ConfigurableAutoPricing>
+    </modules>
+    <global>
+        <helpers>
+            <qvc_configurableautopricing>
+                <class>QVC_ConfigurableAutoPricing_Helper</class>
+            </qvc_configurableautopricing>
+        </helpers>
+        <models>
+            <qvc_configurableautopricing>
+                <class>QVC_ConfigurableAutoPricing_Model</class>
+            </qvc_configurableautopricing>
+        </models>
+        <events>
+            <catalog_product_save_before>
+                <observers>
+                    <qvc_configurableautopricing>
+                        <type>singleton</type>
+                        <class>qvc_configurableautopricing/observer</class>
+                        <method>updatePriceDeltas</method>
+                    </qvc_configurableautopricing>
+                </observers>
+            </catalog_product_save_before>
+        </events>
+    </global>
+</config>
