@@ -133,10 +133,12 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
-        $priceChanges['_cMinPrice'] = $minPrice;
-        $priceChanges['_cIsSpecialPrice'] = $isSpecialPrice;
-        $priceChanges['_cSpecialFrom'] = $specialFrom;
-        $priceChanges['_cSpecialTo'] = $specialTo;
+        if (!empty($priceChanges)) {
+            $priceChanges['_cMinPrice'] = $minPrice;
+            $priceChanges['_cIsSpecialPrice'] = $isSpecialPrice;
+            $priceChanges['_cSpecialFrom'] = $specialFrom;
+            $priceChanges['_cSpecialTo'] = $specialTo;
+        }
 
         return $priceChanges;
     }
