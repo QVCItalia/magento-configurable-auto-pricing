@@ -35,12 +35,14 @@ Clean the cache
 
 ## Usage
 
-Set the individual prices on the children products.
-Make sure to save the parent product after you have modified the children products prices.
-That's all!!
+* Set the individual prices on the children products.
+* Make sure to save the parent product after you have modified the children products prices.
+* That's all!!
 
 You can set special price or normal price on the children products and if the special price is actually valid, then it will be used to calculate the differences.
+
 If on the children products you set either a special price **AND** a normal price, on the configurable product will be set the lowest price of all as a special price and the special_from_date and the special_to_date of the first child with a special price found.
+
 **BE CAREFUL**, you should avoid a situation like that. If you're setting a special price then all the children should have a special price and the special_from_date and the special_to_date should be the same. In this way the configurable product will be 100% coherent with the children.
 
 Eg:
