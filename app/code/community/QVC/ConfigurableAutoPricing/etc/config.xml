@@ -22,10 +22,19 @@
                     <qvc_configurableautopricing>
                         <type>singleton</type>
                         <class>qvc_configurableautopricing/observer</class>
-                        <method>updatePriceDeltas</method>
+                        <method>updatePriceDeltasBeforeSave</method>
                     </qvc_configurableautopricing>
                 </observers>
             </catalog_product_save_before>
+            <catalog_product_save_commit_after>
+                <observers>
+                    <qvc_configurableautopricing>
+                        <type>singleton</type>
+                        <class>qvc_configurableautopricing/observer</class>
+                        <method>updatePriceDeltasAfterSave</method>
+                    </qvc_configurableautopricing>
+                </observers>
+            </catalog_product_save_commit_after>
         </events>
     </global>
 </config>

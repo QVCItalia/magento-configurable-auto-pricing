@@ -10,6 +10,13 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
     protected $_children = array();
 
     /**
+     * Array of price deltas stored by parent id
+     *
+     * @var array
+     */
+    protected $_deltas = array();
+
+    /**
      * Set on the product the configurable attributes data for setting the price changes passed
      *
      * @param Mage_Catalog_Model_Product $product
@@ -68,6 +75,10 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getPriceDeltas(Mage_Catalog_Model_Product $product)
     {
+        if (isset($this->_deltas[$product->getId()])) {
+            return $this->_deltas[$product->getId()];
+        }
+
         if (!$product->isConfigurable()) {
             return null;
         }
@@ -106,7 +117,7 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
             $price = $this->getActualPrice($child);
 
             foreach ($attributesArray as $attributeCode) {
-                $prices[$attributeCode][$child->getData($attributeCode . '')][] = $price;
+                $prices[$attributeCode][$child->getData($attributeCode)][] = $price;
             }
 
             if ($price<$minPrice || $minPrice===null) {
@@ -139,6 +150,8 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
             $priceChanges['_cSpecialFrom'] = $specialFrom;
             $priceChanges['_cSpecialTo'] = $specialTo;
         }
+
+        $this->_deltas[$product->getId()] = $priceChanges;
 
         return $priceChanges;
     }
