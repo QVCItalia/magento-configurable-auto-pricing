@@ -182,9 +182,15 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         $childrenIds = Mage::getModel('catalog/product_type_configurable')->getChildrenIds($product->getId());
-        $children = Mage::getModel('catalog/product')->getCollection()
-            ->addIdFilter($childrenIds)
-            ->addAttributeToSelect($attributesToSelect);
+
+        if (empty($childrenIds) || empty($childrenIds[0])) {
+            $children = null;
+        }
+        else {
+            $children = Mage::getModel('catalog/product')->getCollection()
+                ->addIdFilter($childrenIds)
+                ->addAttributeToSelect($attributesToSelect);
+        }
 
         return $this->_children[$product->getId()] = $children;
     }
