@@ -36,6 +36,14 @@
                 </observers>
             </catalog_product_save_commit_after>
         </events>
+        <resources>
+            <qvc_configurableautopricing_setup>
+                <setup>
+                    <module>QVC_ConfigurableAutoPricing</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+            </qvc_configurableautopricing_setup>
+        </resources>
     </global>
     <default>
         <qvc_configurableautopricing>

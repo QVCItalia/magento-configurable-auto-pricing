@@ -21,13 +21,15 @@ class QVC_ConfigurableAutoPricing_Model_Observer
      */
     public function updatePriceDeltasBeforeSave($observer)
     {
-        if (Mage::getStoreConfigFlag(self::CONFIG_XPATH_ENABLE)) {die('HELLO');
+        if (Mage::getStoreConfigFlag(self::CONFIG_XPATH_ENABLE)) {
             /** @var Mage_Catalog_Model_Product $product */
             $product = $observer->getProduct();
 
-            $this->_wasObjectNew = $product->isObjectNew();
-            if (!$this->_wasObjectNew) {
-                $this->_updatePriceDeltas($product);
+            if ($product->getIsSplitValue()) {
+                $this->_wasObjectNew = $product->isObjectNew();
+                if (!$this->_wasObjectNew) {
+                    $this->_updatePriceDeltas($product);
+                }
             }
         }
     }
@@ -44,7 +46,7 @@ class QVC_ConfigurableAutoPricing_Model_Observer
             /** @var Mage_Catalog_Model_Product $product */
             $product = $observer->getProduct();
 
-            if ($this->_wasObjectNew) {
+            if ($this->_wasObjectNew && $product->getIsSplitValue()) {
                 $this->_wasObjectNew = false;
 
                 $productLoaded = Mage::getModel('catalog/product')->load($product->getId());
