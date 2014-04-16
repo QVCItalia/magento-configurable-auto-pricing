@@ -13,9 +13,9 @@ The big deal is that everything is done through an observer in the before_save e
 
 ## Requirements
 
-Magento EE 1.12
+Magento EE 1.12-1.13
 
-The extension was tested just with this Magento version, but I'd like to hear from you if you tried this on other versions.
+The extension was tested with these Magento versions, but I'd like to hear from you if you tried on other versions.
 
 ## Installation
 ### Modman
@@ -36,23 +36,58 @@ Clean the cache
 ## Usage
 
 * Set the individual prices on the children products.
+* Set the "Is split value" flag of the parent product, in tab "Prices".
 * Make sure to save the parent product after you have modified the children products prices.
 * That's all!!
 
 You can set special price or normal price on the children products and if the special price is actually valid, then it will be used to calculate the differences.
 
-If on the children products you set either a special price **AND** a normal price, on the configurable product will be set the lowest price of all as a special price and the special_from_date and the special_to_date of the first child with a special price found.
+On the parent product will be set the **lowest** price found in the children. Either price, special_price, special_from_date and special_to_date will be set.
 
-**BE CAREFUL**, you should avoid a situation like that. If you're setting a special price then all the children should have a special price and the special_from_date and the special_to_date should be the same. In this way the configurable product will be 100% coherent with the children.
+**BE CAREFUL**, if you have some children products with the special_price and some without then the parent will have the settings of the child with the lowest price, that maybe incoherent with the other children. If you won't have this situation, you won't have any trouble.
 
 Eg:
 
 If you have the following product
 
-| Product Type | Sku | Attribute | Price |
+| Product Type | Sku | Attribute Size | Price |
 | ------------ | --- | --------- | ----- |
 | Configurable | 1000 |          | 21    |
 | Simple       | 1000-A | Small    | 21    |
 | Simple       | 1000-B | Big  | 31      |
 
 when you save the configurable product, it will update the pricing value of **Big** attribute to **10** (just for this product, obviously).
+
+## Limitation
+
+To have the price deltas calculation done correctly the price changes **MUST** be based just on 1 attribute.
+
+
+
+E.g. if I have an item with attributes size and colors then the price can change for every different size or for every different color but not for both.
+
+Example of a product non-suitable to this extension:
+
+| Product Type | Sku | Attribute Size | Attribute Color | Price |
+| ------------ | --- | --------- | ----- |
+| Configurable | 1000 |          | | 21    |
+| Simple       | 1000-A | Small    | Silver | 21    |
+| Simple       | 1000-A | Small    | Gold | 23    |
+| Simple       | 1000-B | Big  | Silver | 31      |
+| Simple       | 1000-B | Big  | Gold | 33      |
+
+*The changes are based both on Size attribute and Color attribute*
+
+
+
+Example of a product suitable to this extension:
+
+| Product Type | Sku | Attribute Size | Attribute Color | Price |
+| ------------ | --- | --------- | ----- |
+| Configurable | 1000 |          | | 21    |
+| Simple       | 1000-A | Small    | Silver | 21    |
+| Simple       | 1000-A | Small    | Gold | 21    |
+| Simple       | 1000-B | Big  | Silver | 31      |
+| Simple       | 1000-B | Big  | Gold | 31      |
+
+*The changes are based just on Size attribute*
