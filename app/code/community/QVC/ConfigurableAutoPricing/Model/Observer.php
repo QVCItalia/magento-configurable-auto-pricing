@@ -3,6 +3,11 @@
 class QVC_ConfigurableAutoPricing_Model_Observer
 {
     /**
+     * @var string
+     */
+    const CONFIG_XPATH_ENABLE = 'qvc_configurableautopricing/general/enable';
+
+    /**
      * Var set in before save to know after commit if the object was new or not
      *
      * @var bool
@@ -16,12 +21,14 @@ class QVC_ConfigurableAutoPricing_Model_Observer
      */
     public function updatePriceDeltasBeforeSave($observer)
     {
-        /** @var Mage_Catalog_Model_Product $product */
-        $product = $observer->getProduct();
+        if (Mage::getStoreConfigFlag(self::CONFIG_XPATH_ENABLE)) {die('HELLO');
+            /** @var Mage_Catalog_Model_Product $product */
+            $product = $observer->getProduct();
 
-        $this->_wasObjectNew = $product->isObjectNew();
-        if (!$this->_wasObjectNew) {
-            $this->_updatePriceDeltas($product);
+            $this->_wasObjectNew = $product->isObjectNew();
+            if (!$this->_wasObjectNew) {
+                $this->_updatePriceDeltas($product);
+            }
         }
     }
 
@@ -33,21 +40,23 @@ class QVC_ConfigurableAutoPricing_Model_Observer
      */
     public function updatePriceDeltasAfterSave($observer)
     {
-        /** @var Mage_Catalog_Model_Product $product */
-        $product = $observer->getProduct();
+        if (Mage::getStoreConfigFlag(self::CONFIG_XPATH_ENABLE)) {
+            /** @var Mage_Catalog_Model_Product $product */
+            $product = $observer->getProduct();
 
-        if ($this->_wasObjectNew) {
-            $this->_wasObjectNew = false;
+            if ($this->_wasObjectNew) {
+                $this->_wasObjectNew = false;
 
-            $productLoaded = Mage::getModel('catalog/product')->load($product->getId());
+                $productLoaded = Mage::getModel('catalog/product')->load($product->getId());
 
-            /** @var QVC_ConfigurableAutoPricing_Helper_Data $helper */
-            $helper = Mage::helper('qvc_configurableautopricing');
-            $priceDeltas = $helper->getPriceDeltas($productLoaded);
-            
-            if (!empty($priceDeltas)) {
-                $productLoaded->setDataChanges(true)
-                    ->save();
+                /** @var QVC_ConfigurableAutoPricing_Helper_Data $helper */
+                $helper = Mage::helper('qvc_configurableautopricing');
+                $priceDeltas = $helper->getPriceDeltas($productLoaded);
+
+                if (!empty($priceDeltas)) {
+                    $productLoaded->setDataChanges(true)
+                        ->save();
+                }
             }
         }
     }

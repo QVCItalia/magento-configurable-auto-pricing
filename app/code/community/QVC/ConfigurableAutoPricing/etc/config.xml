@@ -37,4 +37,35 @@
             </catalog_product_save_commit_after>
         </events>
     </global>
+    <default>
+        <qvc_configurableautopricing>
+            <general>
+                <enable>1</enable>
+            </general>
+        </qvc_configurableautopricing>
+    </default>
+    <adminhtml>
+        <acl>
+            <resources>
+                <all>
+                    <title>Allow Everything</title>
+                </all>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <qvc_configurableautopricing>
+                                            <title>Configurable Auto Pricing</title>
+                                        </qvc_configurableautopricing>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
 </config>
