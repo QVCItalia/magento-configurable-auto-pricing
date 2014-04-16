@@ -33,6 +33,16 @@
                             <show_in_store>1</show_in_store>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                         </enable>
+                        <fields_to_copy translate="label">
+                            <label>Fields to copy on parent product</label>
+                            <comment>These fields will be copied from the child with the lowest price to the parent product, along with price, special_price, special_from_date, special_to_date</comment>
+                            <frontend_model>qvc_configurableautopricing/system_config_form_field_array</frontend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                        </fields_to_copy>
                     </fields>
                 </general>
             </groups>

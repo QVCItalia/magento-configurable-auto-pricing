@@ -3,6 +3,11 @@
 class QVC_ConfigurableAutoPricing_Model_PriceChanges
 {
     /**
+     * @var string
+     */
+    const CONFIG_XPATH_FIELDS = 'qvc_configurableautopricing/general/fields_to_copy';
+
+    /**
      * @var bool
      */
     protected $_isPriceSet;
@@ -89,14 +94,25 @@ class QVC_ConfigurableAutoPricing_Model_PriceChanges
 
     /**
      * @param Mage_Catalog_Model_Product $product
+     * @throws InvalidArgumentException
      */
     public function applyPrice(Mage_Catalog_Model_Product &$product)
     {
+        if ($this->_priceChild === null) {
+            throw new InvalidArgumentException("Price child was not set");
+        }
+
         if ($this->_isPriceSet) {
             $product->setPrice($this->_price);
             $product->setSpecialPrice($this->_specialPrice);
             $product->setSpecialFromDate($this->_specialFrom);
             $product->setSpecialToDate($this->_specialTo);
+
+            // set additional fields set in config
+            $additionalFields = self::getAdditionalFields();
+            foreach ($additionalFields as $fieldName) {
+                $product->setData($fieldName, $this->_priceChild->getData($fieldName));
+            }
 
             /**
              * Trigger event
@@ -148,5 +164,22 @@ class QVC_ConfigurableAutoPricing_Model_PriceChanges
     public function getPriceDeltasArray()
     {
         return $this->_deltas;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getAdditionalFields()
+    {
+        $fieldsArray = array();
+
+        $additionalFields = unserialize(Mage::getStoreConfig(self::CONFIG_XPATH_FIELDS));
+        if (is_array($additionalFields)) {
+            foreach ($additionalFields as $field) {
+                $fieldsArray[] = $field['field'];
+            }
+        }
+
+        return $fieldsArray;
     }
 } 

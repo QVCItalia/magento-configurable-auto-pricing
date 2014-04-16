@@ -215,6 +215,10 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
             $attributesArray[] = $attributeObject->getAttributeCode();
         }
 
+        // add attributes set in config
+        $additionalFields = QVC_ConfigurableAutoPricing_Model_PriceChanges::getAdditionalFields();
+        $attributesArray = array_merge($attributesArray, $additionalFields);
+
         return $this->_attributesArray[$product->getId()] = $attributesArray;
     }
 } 

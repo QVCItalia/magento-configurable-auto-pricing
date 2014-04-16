@@ -16,6 +16,11 @@
                 <class>QVC_ConfigurableAutoPricing_Model</class>
             </qvc_configurableautopricing>
         </models>
+        <blocks>
+            <qvc_configurableautopricing>
+                <class>QVC_ConfigurableAutoPricing_Block</class>
+            </qvc_configurableautopricing>
+        </blocks>
         <events>
             <catalog_product_save_before>
                 <observers>
