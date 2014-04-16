@@ -69,7 +69,7 @@ E.g. if I have an item with attributes size and colors then the price can change
 Example of a product non-suitable to this extension:
 
 | Product Type | Sku | Attribute Size | Attribute Color | Price |
-| ------------ | --- | --------- | ----- |
+| ------------ | --- | --------- | ----- | ----- |
 | Configurable | 1000 |          | | 21    |
 | Simple       | 1000-A | Small    | Silver | 21    |
 | Simple       | 1000-A | Small    | Gold | 23    |
@@ -83,7 +83,7 @@ Example of a product non-suitable to this extension:
 Example of a product suitable to this extension:
 
 | Product Type | Sku | Attribute Size | Attribute Color | Price |
-| ------------ | --- | --------- | ----- |
+| ------------ | --- | --------- | ----- | ----- |
 | Configurable | 1000 |          | | 21    |
 | Simple       | 1000-A | Small    | Silver | 21    |
 | Simple       | 1000-A | Small    | Gold | 21    |
