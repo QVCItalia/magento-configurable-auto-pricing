@@ -58,6 +58,11 @@ If you have the following product
 
 when you save the configurable product, it will update the pricing value of **Big** attribute to **10** (just for this product, obviously).
 
+## Develop
+
+When the price updates are applied on the parent product (this is done in before_save event) another event is triggered: *configurableautopricing_after_apply_price*.
+You can attach your observer to that event to edit everything else your customization needs.
+
 ## Limitation
 
 To have the price deltas calculation done correctly the price changes **MUST** be based just on 1 attribute.

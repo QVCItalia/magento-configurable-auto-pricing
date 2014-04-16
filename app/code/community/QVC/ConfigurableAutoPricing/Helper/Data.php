@@ -49,21 +49,23 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         /**
          * Apply the deltas to the configurable attributes array
          */
-        foreach ($attributesData as &$attribute) {
-            $attributeCode = $attribute['attribute_code'];
+        if ($priceChanges->hasChanges()) {
+            foreach ($attributesData as &$attribute) {
+                $attributeCode = $attribute['attribute_code'];
 
-            foreach ($attribute['values'] as &$value) {
-                $valueIndex = $value['value_index'];
-                if ($priceChange = $priceChanges->getPriceDelta($attributeCode, $valueIndex)) {
-                    $value['pricing_value'] = $priceChange;
+                foreach ($attribute['values'] as &$value) {
+                    $valueIndex = $value['value_index'];
+                    if ($priceChange = $priceChanges->getPriceDelta($attributeCode, $valueIndex)) {
+                        $value['pricing_value'] = $priceChange;
+                    }
                 }
             }
+            $product->setConfigurableAttributesData($attributesData);
         }
-
-        $product->setConfigurableAttributesData($attributesData);
 
         /**
          * Set the price and eventually the special from and the special to date to the parent
+         *   and trigger the event
          */
         $priceChanges->applyPrice($product);
 
@@ -96,10 +98,7 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
          */
         $prices = array();
         $minPrice       = null;
-        $price          = null;
-        $specialPrice   = null;
-        $specialFrom    = null;
-        $specialTo      = null;
+        $minChild       = null;
 
         $children = $this->getProductChildren($product);
 
@@ -116,10 +115,7 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
 
             if ($currentPrice<$minPrice || $minPrice===null) {
                 $minPrice       = $currentPrice;
-                $price          = $child->getPrice();
-                $specialPrice   = $child->getSpecialPrice();
-                $specialFrom    = $child->getSpecialFromDate();
-                $specialTo      = $child->getSpecialToDate();
+                $minChild       = $child;
             }
         }
 
@@ -138,7 +134,7 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
-        $priceChanges->setPrice($price, $specialPrice, $specialFrom, $specialTo);
+        $priceChanges->setPriceFromChild($minChild);
 
         $this->_deltas[$product->getId()] = $priceChanges;
 

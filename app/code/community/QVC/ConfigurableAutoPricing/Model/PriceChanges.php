@@ -8,6 +8,13 @@ class QVC_ConfigurableAutoPricing_Model_PriceChanges
     protected $_isPriceSet;
 
     /**
+     * The product used to update the prices
+     *
+     * @var Mage_Catalog_Model_Product
+     */
+    protected $_priceChild;
+
+    /**
      * @var float
      */
     protected $_price;
@@ -59,6 +66,28 @@ class QVC_ConfigurableAutoPricing_Model_PriceChanges
     }
 
     /**
+     * @param Mage_Catalog_Model_Product $child
+     * @return $this
+     * @throws InvalidArgumentException
+     */
+    public function setPriceFromChild(Mage_Catalog_Model_Product $child)
+    {
+        if ($child === null) {
+            throw new InvalidArgumentException("Product passed is a non-object");
+        }
+
+        $price          = $child->getPrice();
+        $specialPrice   = $child->getSpecialPrice();
+        $specialFrom    = $child->getSpecialFromDate();
+        $specialTo      = $child->getSpecialToDate();
+
+        $this->setPrice($price, $specialPrice, $specialFrom, $specialTo);
+        $this->_priceChild = $child;
+
+        return $this;
+    }
+
+    /**
      * @param Mage_Catalog_Model_Product $product
      */
     public function applyPrice(Mage_Catalog_Model_Product &$product)
@@ -68,6 +97,13 @@ class QVC_ConfigurableAutoPricing_Model_PriceChanges
             $product->setSpecialPrice($this->_specialPrice);
             $product->setSpecialFromDate($this->_specialFrom);
             $product->setSpecialToDate($this->_specialTo);
+
+            /**
+             * Trigger event
+             */
+            Mage::dispatchEvent('configurableautopricing_after_apply_price', array(
+                'parent' => $product,
+                'child' => $this->_priceChild));
         }
     }
 
