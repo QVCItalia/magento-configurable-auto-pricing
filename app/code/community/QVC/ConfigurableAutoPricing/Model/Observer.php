@@ -49,16 +49,8 @@ class QVC_ConfigurableAutoPricing_Model_Observer
             if ($this->_wasObjectNew && $product->getIsSplitValue()) {
                 $this->_wasObjectNew = false;
 
-                $productLoaded = Mage::getModel('catalog/product')->load($product->getId());
-
-                /** @var QVC_ConfigurableAutoPricing_Helper_Data $helper */
-                $helper = Mage::helper('qvc_configurableautopricing');
-                $priceDeltas = $helper->getPriceDeltas($productLoaded);
-
-                if (!empty($priceDeltas)) {
-                    $productLoaded->setDataChanges(true)
-                        ->save();
-                }
+                $product->setDataChanges(true)
+                    ->save();
             }
         }
     }
@@ -72,19 +64,9 @@ class QVC_ConfigurableAutoPricing_Model_Observer
      */
     protected function _updatePriceDeltas(Mage_Catalog_Model_Product $product)
     {
-        if (!$product->isConfigurable()) {
-            return false;
-        }
-
         /** @var QVC_ConfigurableAutoPricing_Helper_Data $helper */
         $helper = Mage::helper('qvc_configurableautopricing');
-        $priceDeltas = $helper->getPriceDeltas($product);
 
-        if (!empty($priceDeltas)) {
-            $helper->setConfigurableAttributesPricing($product, $priceDeltas);
-            return true;
-        }
-
-        return false;
+        return $helper->setConfigurableAttributesPricing($product);
     }
 } 

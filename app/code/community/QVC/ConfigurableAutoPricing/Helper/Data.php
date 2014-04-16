@@ -10,9 +10,16 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
     protected $_children = array();
 
     /**
-     * Array of price deltas stored by parent id
+     * Array of the product attributes stored by parent id
      *
      * @var array
+     */
+    protected $_attributesArray = array();
+
+    /**
+     * Array of price deltas stored by parent id
+     *
+     * @var QVC_ConfigurableAutoPricing_Model_PriceChanges[]
      */
     protected $_deltas = array();
 
@@ -20,16 +27,20 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
      * Set on the product the configurable attributes data for setting the price changes passed
      *
      * @param Mage_Catalog_Model_Product $product
-     * @param array $priceChanges
      * @return $this
      */
-    public function setConfigurableAttributesPricing(Mage_Catalog_Model_Product &$product, $priceChanges = array())
+    public function setConfigurableAttributesPricing(Mage_Catalog_Model_Product &$product)
     {
-        $children = $this->getProductChildren($product);
-
-        if (!$product->isConfigurable() || empty($children) || empty($priceChanges)) {
-            return $this;
+        if (!$product->isConfigurable()) {
+            return false;
         }
+
+        $children = $this->getProductChildren($product);
+        if (empty($children)) {
+            return false;
+        }
+
+        $priceChanges = $this->getPriceDeltas($product);
 
         $productType = $product->getTypeInstance(true);
         $productType->setProduct($product);
@@ -43,8 +54,7 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
 
             foreach ($attribute['values'] as &$value) {
                 $valueIndex = $value['value_index'];
-                if (isset($priceChanges[$attributeCode]) && isset($priceChanges[$attributeCode][$valueIndex])) {
-                    $priceChange = $priceChanges[$attributeCode][$valueIndex];
+                if ($priceChange = $priceChanges->getPriceDelta($attributeCode, $valueIndex)) {
                     $value['pricing_value'] = $priceChange;
                 }
             }
@@ -55,23 +65,16 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         /**
          * Set the price and eventually the special from and the special to date to the parent
          */
-        if ($priceChanges['_cIsSpecialPrice']) {
-            $product->setSpecialPrice($priceChanges['_cMinPrice']);
-            $product->setSpecialFromDate($priceChanges['_cSpecialFrom']);
-            $product->setSpecialToDate($priceChanges['_cSpecialTo']);
-        }
-        else {
-            $product->setPrice($priceChanges['_cMinPrice']);
-        }
+        $priceChanges->applyPrice($product);
 
-        return $this;
+        return true;
     }
 
     /**
      * Get a price deltas array
      *
      * @param Mage_Catalog_Model_Product $product
-     * @return array
+     * @return QVC_ConfigurableAutoPricing_Model_PriceChanges
      */
     public function getPriceDeltas(Mage_Catalog_Model_Product $product)
     {
@@ -86,70 +89,56 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         /**
          * Get product attributes
          */
-        $attributes = $product->getTypeInstance()->getConfigurableAttributes($product);
-        $attributesArray = array();
-        foreach ($attributes as $attribute) {
-            $attributeObject = Mage::getModel('eav/entity_attribute')->load($attribute->getAttributeId());
-            $attributesArray[] = $attributeObject->getAttributeCode();
-        }
+        $attributesArray = $this->getAttributesArray($product);
 
         /**
          * Parse children to get absolute prices
          */
         $prices = array();
-        $minPrice = null;
-        $isSpecialPrice = false;
-        $specialFrom = '';
-        $specialTo = '';
+        $minPrice       = null;
+        $price          = null;
+        $specialPrice   = null;
+        $specialFrom    = null;
+        $specialTo      = null;
 
-        $children = $this->getProductChildren($product,
-            array_merge($attributesArray, array(
-                'price',
-                'special_price',
-                'special_from_date',
-                'special_to_date')));
+        $children = $this->getProductChildren($product);
 
         if (empty($children)) {
             return null;
         }
 
         foreach ($children as $child) {
-            $price = $this->getActualPrice($child);
+            $currentPrice = $this->getActualPrice($child);
 
             foreach ($attributesArray as $attributeCode) {
-                $prices[$attributeCode][$child->getData($attributeCode)][] = $price;
+                $prices[$attributeCode][$child->getData($attributeCode)][] = $currentPrice;
             }
 
-            if ($price<$minPrice || $minPrice===null) {
-                $minPrice = $price;
-            }
-            if (!$isSpecialPrice && $this->isActualPriceSpecial($child)) {
-                $isSpecialPrice = true;
-                $specialFrom = $child->getSpecialFromDate();
-                $specialTo = $child->getSpecialToDate();
+            if ($currentPrice<$minPrice || $minPrice===null) {
+                $minPrice       = $currentPrice;
+                $price          = $child->getPrice();
+                $specialPrice   = $child->getSpecialPrice();
+                $specialFrom    = $child->getSpecialFromDate();
+                $specialTo      = $child->getSpecialToDate();
             }
         }
 
         /**
          * Parse absolute prices to get price deltas
+         * @var QVC_ConfigurableAutoPricing_Model_PriceChanges $priceChanges
          */
-        $priceChanges = array();
+        $priceChanges = Mage::getModel('qvc_configurableautopricing/priceChanges');
         foreach ($prices as $attributeCode => $attribute) {
             foreach ($attribute as $attributeValue => $attributePrices) {
                 $attributePrices = array_unique($attributePrices);
                 if (count($attributePrices)==1 && $attributePrices[0] != $minPrice) {
                     $delta = $attributePrices[0]-$minPrice;
-                    $priceChanges[$attributeCode][$attributeValue] = $delta;
+                    $priceChanges->setPriceDelta($attributeCode, $attributeValue, $delta);
                 }
             }
         }
 
-        if (!empty($priceChanges)) {
-            $priceChanges['_cMinPrice'] = $minPrice;
-            $priceChanges['_cIsSpecialPrice'] = $isSpecialPrice;
-            $priceChanges['_cSpecialFrom'] = $specialFrom;
-            $priceChanges['_cSpecialTo'] = $specialTo;
-        }
+        $priceChanges->setPrice($price, $specialPrice, $specialFrom, $specialTo);
 
         $this->_deltas[$product->getId()] = $priceChanges;
 
@@ -185,14 +174,19 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
      * Get the collection of children products
      *
      * @param Mage_Catalog_Model_Product $product
-     * @param array $attributesToSelect
      * @return Mage_Catalog_Model_Resource_Product_Collection
      */
-    public function getProductChildren(Mage_Catalog_Model_Product $product, array $attributesToSelect = array())
+    public function getProductChildren(Mage_Catalog_Model_Product $product)
     {
         if (isset($this->_children[$product->getId()])) {
             return $this->_children[$product->getId()];
         }
+
+        $attributesToSelect = array_merge($this->getAttributesArray($product), array(
+            'price',
+            'special_price',
+            'special_from_date',
+            'special_to_date'));
 
         $childrenIds = Mage::getModel('catalog/product_type_configurable')->getChildrenIds($product->getId());
 
@@ -206,5 +200,25 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return $this->_children[$product->getId()] = $children;
+    }
+
+    /**
+     * @param Mage_Catalog_Model_Product $product
+     * @return array
+     */
+    public function getAttributesArray(Mage_Catalog_Model_Product $product)
+    {
+        if (isset($this->_attributesArray[$product->getId()])) {
+            return $this->_attributesArray[$product->getId()];
+        }
+
+        $attributes = $product->getTypeInstance()->getConfigurableAttributes($product);
+        $attributesArray = array();
+        foreach ($attributes as $attribute) {
+            $attributeObject = Mage::getModel('eav/entity_attribute')->load($attribute->getAttributeId());
+            $attributesArray[] = $attributeObject->getAttributeCode();
+        }
+
+        return $this->_attributesArray[$product->getId()] = $attributesArray;
     }
 } 
