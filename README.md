@@ -64,9 +64,11 @@ To have the price deltas calculation done correctly the price changes **MUST** b
 
 
 
-E.g. if I have an item with attributes size and colors then the price can change for every different size or for every different color but not for both.
+Example
 
-Example of a product non-suitable to this extension:
+if I have an item with attributes size and colors then the price can change for every different size or for every different color but not for both.
+
+A product **non-suitable** to this extension:
 
 | Product Type | Sku | Attribute Size | Attribute Color | Price |
 | ------------ | --- | --------- | ----- | ----- |
@@ -80,7 +82,7 @@ Example of a product non-suitable to this extension:
 
 
 
-Example of a product suitable to this extension:
+Example of a product **suitable** to this extension:
 
 | Product Type | Sku | Attribute Size | Attribute Color | Price |
 | ------------ | --- | --------- | ----- | ----- |
