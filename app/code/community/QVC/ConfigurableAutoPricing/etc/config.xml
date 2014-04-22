@@ -54,6 +54,7 @@
         <qvc_configurableautopricing>
             <general>
                 <enable>1</enable>
+                <parent_price_from_children>0</parent_price_from_children>
             </general>
         </qvc_configurableautopricing>
     </default>

@@ -3,6 +3,11 @@
 class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
 {
     /**
+     * @var string
+     */
+    const CONFIG_XPATH_PARENT_PRICE = 'qvc_configurableautopricing/general/parent_price_from_children';
+
+    /**
      * Array of children collections stored by parent id
      *
      * @var Mage_Catalog_Model_Resource_Product_Collection[] $_children
@@ -55,7 +60,8 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
 
                 foreach ($attribute['values'] as &$value) {
                     $valueIndex = $value['value_index'];
-                    if ($priceChange = $priceChanges->getPriceDelta($attributeCode, $valueIndex)) {
+                    $priceChange = $priceChanges->getPriceDelta($attributeCode, $valueIndex);
+                    if ($priceChange !== null) {
                         $value['pricing_value'] = $priceChange;
                     }
                 }
@@ -64,10 +70,12 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         /**
-         * Set the price and eventually the special from and the special to date to the parent
-         *   and trigger the event
+         * If the parent price should be taken from the children, set the price and eventually the special from
+         *   and the special to date to the parent and trigger the event
          */
-        $priceChanges->applyPrice($product);
+        if (Mage::getStoreConfigFlag(self::CONFIG_XPATH_PARENT_PRICE)) {
+            $priceChanges->applyPrice($product);
+        }
 
         return true;
     }
@@ -97,8 +105,8 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
          * Parse children to get absolute prices
          */
         $prices = array();
-        $minPrice       = null;
-        $minChild       = null;
+        $minPrice       = $this->getActualPrice($product);
+        $minChild       = $product;
 
         $children = $this->getProductChildren($product);
 
@@ -113,7 +121,10 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
                 $prices[$attributeCode][$child->getData($attributeCode)][] = $currentPrice;
             }
 
-            if ($currentPrice<$minPrice || $minPrice===null) {
+            /**
+             * If the price for the deltas should be the minimum price, put it into vars
+             */
+            if (Mage::getStoreConfigFlag(self::CONFIG_XPATH_PARENT_PRICE) && ($currentPrice<$minPrice || $minPrice===null)) {
                 $minPrice       = $currentPrice;
                 $minChild       = $child;
             }
@@ -127,7 +138,7 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         foreach ($prices as $attributeCode => $attribute) {
             foreach ($attribute as $attributeValue => $attributePrices) {
                 $attributePrices = array_unique($attributePrices);
-                if (count($attributePrices)==1 && $attributePrices[0] != $minPrice) {
+                if (count($attributePrices)==1) {
                     $delta = $attributePrices[0]-$minPrice;
                     $priceChanges->setPriceDelta($attributeCode, $attributeValue, $delta);
                 }
