@@ -42,7 +42,11 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
 
         $productType = $product->getTypeInstance(true);
         $productType->setProduct($product);
-        $attributesData = $productType->getConfigurableAttributesAsArray();
+
+        $attributesData = $product->getConfigurableAttributesData();
+        if (!is_array($attributesData)) {
+            $attributesData = $productType->getConfigurableAttributesAsArray();
+        }
 
         /**
          * Apply the deltas to the configurable attributes array
@@ -196,7 +200,17 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
             'special_from_date',
             'special_to_date'));
 
-        $childrenIds = Mage::getModel('catalog/product_type_configurable')->getChildrenIds($product->getId());
+        $configurableProductsData = $product->getConfigurableProductsData();
+        if (!is_array($configurableProductsData)) {
+            $childrenIds = Mage::getModel('catalog/product_type_configurable')->getChildrenIds($product->getId());
+        }
+        else {
+            $childrenIds = array(0 => array());
+            foreach ($configurableProductsData as $key => $value) {
+                $childrenIds[0][$key] = $key;
+            }
+        }
+
 
         if (empty($childrenIds) || empty($childrenIds[0])) {
             $children = null;
