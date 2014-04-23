@@ -15,13 +15,6 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
     protected $_children = array();
 
     /**
-     * Array of the product attributes stored by parent id
-     *
-     * @var array
-     */
-    protected $_attributesArray = array();
-
-    /**
      * Array of price deltas stored by parent id
      *
      * @var QVC_ConfigurableAutoPricing_Model_PriceChanges[]
@@ -99,7 +92,7 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         /**
          * Get product attributes
          */
-        $attributesArray = $this->getAttributesArray($product);
+        $attributesArray = $this->getConfigurableAttributesArray($product);
 
         /**
          * Parse children to get absolute prices
@@ -223,10 +216,6 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getAttributesArray(Mage_Catalog_Model_Product $product)
     {
-        if (isset($this->_attributesArray[$product->getId()])) {
-            return $this->_attributesArray[$product->getId()];
-        }
-
         $attributes = $product->getTypeInstance()->getConfigurableAttributes($product);
         $attributesArray = array();
         foreach ($attributes as $attribute) {
@@ -238,6 +227,22 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
         $additionalFields = QVC_ConfigurableAutoPricing_Model_PriceChanges::getAdditionalFields();
         $attributesArray = array_merge($attributesArray, $additionalFields);
 
-        return $this->_attributesArray[$product->getId()] = $attributesArray;
+        return $attributesArray;
+    }
+
+    /**
+     * @param Mage_Catalog_Model_Product $product
+     * @return array
+     */
+    public function getConfigurableAttributesArray(Mage_Catalog_Model_Product $product)
+    {
+        $attributes = $product->getTypeInstance()->getConfigurableAttributes($product);
+        $attributesArray = array();
+        foreach ($attributes as $attribute) {
+            $attributeObject = Mage::getModel('eav/entity_attribute')->load($attribute->getAttributeId());
+            $attributesArray[] = $attributeObject->getAttributeCode();
+        }
+
+        return $attributesArray;
     }
 } 
