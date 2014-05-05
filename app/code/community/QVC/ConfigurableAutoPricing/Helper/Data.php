@@ -145,8 +145,11 @@ class QVC_ConfigurableAutoPricing_Helper_Data extends Mage_Core_Helper_Abstract
                 $attributePrices = array_unique($attributePrices);
                 if (count($attributePrices)==1) {
                     $delta = $attributePrices[0]-$minPrice;
-                    $priceChanges->setPriceDelta($attributeCode, $attributeValue, $delta);
                 }
+                else {
+                    $delta = 0;
+                }
+                $priceChanges->setPriceDelta($attributeCode, $attributeValue, $delta);
             }
         }
 
