@@ -43,6 +43,7 @@ Clean the cache
 You can set special price or normal price on the children products and if the special price is actually valid, then it will be used to calculate the differences.
 
 On the parent product will be set the **lowest** price found in the children. Either price, special_price, special_from_date and special_to_date will be set.
+From the configuration panel you can either disable this feature or specify other attributes to copy from the child with the lowest price to the parent.
 
 **BE CAREFUL**, if you have some children products with the special_price and some without then the parent will have the settings of the child with the lowest price, that maybe incoherent with the other children. If you won't have this situation, you won't have any trouble.
 
@@ -57,6 +58,16 @@ If you have the following product
 | Simple       | 1000-B | Big  | 31      |
 
 when you save the configurable product, it will update the pricing value of **Big** attribute to **10** (just for this product, obviously).
+
+## Configuration
+
+In your backend, if you go under System > Configuration > Catalog > Configurable Auto Pricing you can edit a few settings:
+
+| Label | Type | Default | Description |
+| ----- | --- | --------- | ----- |
+| Enable | Yes/No | Yes | Activate the module |
+| Parent price from children | Yes/No | Yes | Copy the attributes price, special_price, special_from_date, special_to_date from the child having the minimum price to the parent, along with the additional attributes you can specify here below. |
+| Attributes to copy to parent product | Multivalue | - | These attributes will be copied from the child with the lowest price to the parent product, along with price, special_price, special_from_date, special_to_date. This has no effect if flag "parent price from children" is false |
 
 ## Develop
 

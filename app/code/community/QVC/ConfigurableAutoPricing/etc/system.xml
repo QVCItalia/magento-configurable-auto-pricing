@@ -27,9 +27,19 @@
                             <show_in_store>1</show_in_store>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                         </enable>
+                        <parent_price_from_children>
+                            <label>Parent price from children</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>Copy the attributes price, special_price, special_from_date, special_to_date from the child having the minimum price to the parent, along with the additional attributes you can specify here below.</comment>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </parent_price_from_children>
                         <fields_to_copy translate="label">
-                            <label>Fields to copy on parent product</label>
-                            <comment>These fields will be copied from the child with the lowest price to the parent product, along with price, special_price, special_from_date, special_to_date. This has no effect if flag "parent price from children" is false</comment>
+                            <label>Attributes to copy to parent product</label>
+                            <comment>These attributes will be copied from the child with the lowest price to the parent product, along with price, special_price, special_from_date, special_to_date. This has no effect if flag "parent price from children" is false</comment>
                             <frontend_model>qvc_configurableautopricing/system_config_form_field_array</frontend_model>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
@@ -37,16 +47,6 @@
                             <show_in_store>1</show_in_store>
                             <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
                         </fields_to_copy>
-                        <parent_price_from_children>
-                            <label>Parent price from children</label>
-                            <frontend_type>select</frontend_type>
-                            <comment>Use for the calculation the minimum price of the children and apply to the parent the prices along with the above specified additional attributes.</comment>
-                            <sort_order>30</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                        </parent_price_from_children>
                     </fields>
                 </general>
             </groups>
