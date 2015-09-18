@@ -13,9 +13,10 @@ The big deal is that everything is done through an observer in the before_save e
 
 ## Requirements
 
-Magento EE 1.12-1.13
+Magento EE 1.12-1.13, CE 1.9
 
-The extension was tested with these Magento versions, but I'd like to hear from you if you tried on other versions.
+The extension was tested on these Magento versions, with the help of the GitHub community.
+If you're gonna try it on other versions, please let us know how it behaves! Hopefully we'll updated the compatible versions list :)
 
 ## Installation
 ### Modman
