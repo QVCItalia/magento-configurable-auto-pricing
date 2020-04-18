@@ -49,8 +49,9 @@ class QVC_ConfigurableAutoPricing_Model_Observer
             if ($this->_wasObjectNew && $product->getIsSplitValue()) {
                 $this->_wasObjectNew = false;
 
-                $product->setDataChanges(true)
-                    ->save();
+                $product->setDataChanges(true);
+                $product->getResource()
+                    ->save($product);
             }
         }
     }
